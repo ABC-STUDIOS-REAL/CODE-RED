@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CODE RED &amp; CODE PIXEL – Support tickets</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f5;--panel:#fff;--ink:#14213d;--mute:#5b6679;--line:#d9dfe8;--accent:#2f5bea;--accent-ink:#fff;--sq:#e3e8f0;
+--open:#c2410c;--open-bg:#ffedd5;--pend:#8a6d00;--pend-bg:#fef3c7;--done:#166534;--done-bg:#dcfce7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1424;--panel:#161e33;--ink:#e8ecf6;--mute:#96a1b8;--line:#2a3452;--accent:#7b9bff;--accent-ink:#0e1424;--sq:#1c2540;
+--open:#fdba74;--open-bg:#3a2210;--pend:#fde68a;--pend-bg:#3a3010;--done:#86efac;--done-bg:#12301c}}
+:root[data-theme="dark"]{--bg:#0e1424;--panel:#161e33;--ink:#e8ecf6;--mute:#96a1b8;--line:#2a3452;--accent:#7b9bff;--accent-ink:#0e1424;--sq:#1c2540;
+--open:#fdba74;--open-bg:#3a2210;--pend:#fde68a;--pend-bg:#3a3010;--done:#86efac;--done-bg:#12301c}
+:root[data-team="red"]{--accent:#d62839;--accent-ink:#fff}
+:root[data-team="pixel"]{--accent:#7c3aed;--accent-ink:#fff}
+#home{display:none;min-height:calc(100dvh - var(--hh,62px));align-items:center;justify-content:center;padding:24px}
+body.home #home{display:grid}
+body.home main,body.home .teams,body.home #newBtn,body.home #homeBtn{display:none}
+.pick{width:min(720px,100%);text-align:center}
+.pick h1{font-size:clamp(28px,6vw,44px);margin:0 0 24px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.choice{border:2px solid var(--line);background:var(--panel);border-radius:14px;padding:44px 16px;font:700 clamp(20px,4vw,30px)/1.1 Sora,system-ui,sans-serif;cursor:pointer;color:var(--ink)}
+.choice[data-t="red"]:hover,.choice[data-t="red"]:focus-visible{border-color:#d62839;background:#d62839;color:#fff}
+.choice[data-t="pixel"]:hover,.choice[data-t="pixel"]:focus-visible{border-color:#7c3aed;background:#7c3aed;color:#fff}
+.choice.all{grid-column:1/-1;padding:24px 16px}
+.choice.all:hover,.choice.all:focus-visible{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+[hidden]{display:none!important}
+@media (max-width:760px){.choices{grid-template-columns:1fr}}
+.teams{display:flex;gap:4px;background:var(--panel);padding:4px;border-radius:10px;border:1px solid var(--line)}
+.team{border:0;background:transparent;border-radius:7px;padding:7px 14px;font-weight:700;cursor:pointer;color:var(--mute)}
+.team[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Sora,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--line);
+background-image:repeating-conic-gradient(var(--sq) 0 25%,transparent 0 50%);background-size:20px 20px;background-position:right top;}
+.logo{font-weight:700;font-size:20px;letter-spacing:-.02em;background:var(--panel);padding:2px 10px 2px 0}
+.logo small{font-weight:400;color:var(--mute);font-size:13px;margin-left:8px}
+.sp{flex:1}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer}
+.btn.ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{display:grid;grid-template-columns:minmax(300px,400px) 1fr;height:calc(100vh - var(--hh,62px));height:calc(100dvh - var(--hh,62px) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+.list{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--panel)}
+.tools{padding:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.tools input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 12px;cursor:pointer;font-size:13px}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.rows{overflow:auto;flex:1}
+.row{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 14px;cursor:pointer}
+.row:hover{background:var(--bg)}
+.row[aria-current="true"]{background:var(--bg);box-shadow:inset 3px 0 0 var(--accent)}
+.row b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;gap:8px;align-items:center;color:var(--mute);font-size:12.5px;margin-top:4px}
+.badge{border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600}
+.s-open{background:var(--open-bg);color:var(--open)}.s-pending{background:var(--pend-bg);color:var(--pend)}.s-solved{background:var(--done-bg);color:var(--done)}
+.empty{padding:32px 20px;color:var(--mute);text-align:center}
+.detail{overflow:auto;padding:24px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;max-width:760px}
+.back{display:none;margin-bottom:12px}
+h1{font-size:22px;letter-spacing:-.02em;margin:0 0 6px}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+.ctl label{font-size:13px;color:var(--mute);display:grid;gap:4px}
+select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.msg{border-top:1px solid var(--line);padding:14px 0}
+.msg.agent{background:linear-gradient(90deg,var(--bg),transparent);margin:0 -20px;padding:14px 20px}
+.msg .who{font-weight:600;font-size:13px}.msg .who span{color:var(--mute);font-weight:400;margin-left:6px}
+.msg p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+textarea{width:100%;min-height:90px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);resize:vertical}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);padding:22px;width:min(480px,92vw)}
+.vw{border:0;background:transparent;border-radius:7px;padding:7px 12px;font-weight:600;cursor:pointer;color:var(--mute)}
+.vw[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+#panel{display:none;padding:20px;max-width:1000px;margin:0 auto}
+body.v-inventory #panel,body.v-staff #panel{display:block}
+body.v-inventory main,body.v-staff main,body.v-inventory #newBtn,body.v-staff #newBtn{display:none}
+.add{display:flex;flex-wrap:wrap;gap:10px;align-items:end;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:14px 0}
+.add label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
+.add input,.add select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);max-width:150px}
+.tbl{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}th{font-size:13px;color:var(--mute);font-weight:600}tr:last-child td{border-bottom:0}
+td select{padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.mini{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;padding:3px 10px;cursor:pointer}
+.muted{color:var(--mute);margin:0}
+.pos{border:1px solid var(--line);border-radius:10px;padding:14px;margin:16px 0;background:var(--bg)}
+.pos .who{font-weight:600}.pos table{width:100%}.pos td{padding:6px 8px;white-space:normal}
+.prow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.prow input,.prow select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);min-width:0;flex:1 1 90px}
+.prow input[aria-invalid="true"]{border-color:var(--open)}
+.hrs[aria-invalid="true"]{border-color:var(--open)}
+.tot{display:flex;gap:16px;flex-wrap:wrap;justify-content:flex-end;align-items:center;margin-top:12px}
+.till{display:grid;grid-template-columns:1fr minmax(280px,360px);gap:20px;align-items:start;margin:14px 0}
+.till h2,#panel h2{font-size:16px;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.prod{display:grid;gap:2px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;color:var(--ink)}
+.prod:hover:not(:disabled){border-color:var(--accent)}.prod:disabled{opacity:.5;cursor:not-allowed}.prod small{color:var(--mute)}
+.cart{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;position:sticky;top:10px}
+.cl{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);align-items:center}
+.done{background:var(--done-bg);color:var(--done);border-radius:10px;padding:10px 14px;margin:12px 0;font-weight:600}
+#login{display:none;min-height:100dvh;place-items:center;padding:24px}
+body.locked #login{display:grid}
+body.locked header,body.locked main,body.locked #panel,body.locked #home{display:none!important}
+.lcard{width:min(380px,100%);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px}
+.err{color:var(--open);min-height:1.2em;font-size:13px}
+.seg{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.seg .vw{flex:1}
+#portal{display:none;max-width:760px;margin:0 auto;padding:20px}
+body.cust #portal{display:block}
+body.locked #portal{display:none!important}
+body.cust main,body.cust #panel,body.cust #home,body.cust .teams,body.cust #homeBtn,body.cust #newBtn{display:none!important}
+.phead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tk{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px;cursor:pointer;color:var(--ink)}
+.tk b{display:block}
+@media (max-width:760px){.till{grid-template-columns:1fr}}
+.hrs{width:80px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+dialog{max-height:92dvh;overflow:auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.info{display:flex;flex-wrap:wrap;gap:6px 24px;margin:14px 0 0}.info dt{font-size:12px;color:var(--mute)}.info dd{margin:0;font-size:14px}
+@media (max-width:480px){.two{grid-template-columns:1fr}}
+dialog::backdrop{background:rgba(10,15,30,.5)}
+form{display:grid;gap:12px}
+form label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
+form input,form select{padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+@media (max-width:760px){main{grid-template-columns:1fr}.detail{display:none}main.show .list{display:none}main.show .detail{display:block;padding:14px}.back{display:inline-block}.logo{display:none}}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .18s ease-out}@keyframes in{from{opacity:.4;transform:translateY(4px)}}}
+</style>
+</head>
+<body>
+<header>
+  <button class="btn ghost" id="homeBtn">Home</button>
+  <div class="teams" id="teams" role="group" aria-label="Team"><button class="team" data-t="red">CODE RED</button><button class="team" data-t="pixel">CODE PIXEL</button><button class="team" data-t="all">ALL</button></div>
+  <div class="teams" id="views" role="group" aria-label="Section"><button class="vw" data-v="tickets">Tickets</button><button class="vw" data-v="inventory">Inventory</button><button class="vw" data-v="staff">Staff</button><button class="vw" data-v="pos">POS</button><button class="vw" data-v="customers">Customers</button></div>
+  <div class="sp"></div><span id="who" class="muted"></span>
+  <button class="btn" id="newBtn">New ticket</button>
+  <button class="btn ghost" id="outBtn">Sign out</button>
+</header>
+<section id="home"><div class="pick"><h1>Pick one</h1><div class="choices"><button class="choice" data-t="red">Code RED</button><button class="choice" data-t="pixel">Code PIXEL</button><button class="choice all" data-t="all">All</button></div></div></section>
+<main id="main">
+  <section class="list" aria-label="Tickets">
+    <div class="tools">
+      <input id="q" type="search" placeholder="Search tickets" aria-label="Search tickets">
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="rows" id="rows"></div>
+  </section>
+  <section class="detail" id="detail" aria-live="polite"></section>
+</main>
+
+<section id="login" aria-live="polite"></section>
+<section id="portal" aria-live="polite"></section>
+<section id="panel" aria-live="polite"></section>
+
+<dialog id="dlg">
+  <form id="form" method="dialog">
+    <h1>New ticket</h1>
+    <label>Your name<input name="name" required autocomplete="name"></label>
+    <label>Email<input name="email" type="email" required autocomplete="email"></label>
+    <label>Subject<input name="subject" required maxlength="120"></label>
+    <div class="two"><label>Category<select name="category"><option>Bug</option><option>Billing</option><option>Account</option><option>Feature request</option><option>Question</option><option>Other</option></select></label>
+    <label>Who’s affected<select name="affects"><option>Just me</option><option>My team</option><option>Everyone</option></select></label></div>
+    <div class="two"><label>Phone (optional)<input name="phone" type="tel" autocomplete="tel"></label>
+    <label>Order or reference no. (optional)<input name="ref" maxlength="40"></label></div>
+    <label>Best way to reach you<select name="contact"><option>Email</option><option>Phone</option></select></label>
+    <label id="deskLbl" hidden>Desk<select id="deskSel" name="team"><option value="red">Code RED</option><option value="pixel">Code PIXEL</option></select></label>
+    <label>Priority<select name="priority"><option>Low</option><option selected>Normal</option><option>High</option><option>Urgent</option></select></label>
+    <label>What’s happening?<textarea name="body" required placeholder="Describe the problem and what you expected to happen."></textarea></label>
+    <label>Steps to reproduce (optional)<textarea name="steps" style="min-height:60px"></textarea></label>
+    <div class="acts"><button type="button" class="btn ghost" id="cancel">Cancel</button><button class="btn" type="submit">Create ticket</button></div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+var KEY="code-desk-v3", FILTERS=["All","Open","Pending","Solved"];
+var now=Date.now(), H=3600000;
+var seed=[
+ {id:1042,subject:"Can’t reset my password",name:"Maya Chen",email:"maya@example.com",priority:"High",status:"Open",created:now-2*H,replies:[{who:"Maya Chen",agent:false,text:"The reset email never arrives. I’ve checked spam twice.",t:now-2*H}]},
+ {id:1041,subject:"Invoice shows the wrong billing address",name:"Tom Ruiz",email:"tom@example.com",priority:"Normal",status:"Pending",created:now-27*H,replies:[{who:"Tom Ruiz",agent:false,text:"Our March invoice lists the old office address.",t:now-27*H},{who:"Support",agent:true,text:"Thanks Tom. Could you send the new address so we can reissue it?",t:now-24*H}]},
+ {id:1040,subject:"Export to CSV is missing a column",name:"Priya Nair",email:"priya@example.com",priority:"Low",status:"Solved",created:now-80*H,replies:[{who:"Priya Nair",agent:false,text:"The ‘Region’ column isn’t in the CSV export.",t:now-80*H},{who:"Support",agent:true,text:"Fixed in today’s release. Re-export and it will be there.",t:now-70*H}]},
+ {id:1043,team:"pixel",subject:"Sprite sheet exports with blurry edges",name:"Jo Park",email:"jo@example.com",priority:"Normal",status:"Open",created:now-5*H,replies:[{who:"Jo Park",agent:false,text:"Exported PNGs look smoothed. I need hard pixel edges.",t:now-5*H}]},
+ {id:1044,team:"pixel",subject:"Palette import fails on .gpl files",name:"Lena Ortiz",email:"lena@example.com",priority:"High",status:"Pending",created:now-30*H,replies:[{who:"Lena Ortiz",agent:false,text:"Importing a GIMP palette shows an error.",t:now-30*H},{who:"Support",agent:true,text:"Thanks Lena. Could you attach the file so we can reproduce it?",t:now-26*H}]}
+];
+var tickets=load(), team="red", filter="All", sel=null;
+function mine(){return tickets.filter(function(t){return team==="all"||t.team===team})}
+function load(){try{var s=localStorage.getItem(KEY);if(s)return JSON.parse(s)}catch(e){}return []}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(tickets))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function ago(t){var m=Math.round((Date.now()-t)/60000);if(m<1)return"just now";if(m<60)return m+" min ago";var h=Math.round(m/60);if(h<24)return h+" h ago";return Math.round(h/24)+" d ago"}
+function cls(s){return"badge s-"+s.toLowerCase()}
+
+function renderTabs(){
+ $("tabs").innerHTML=FILTERS.map(function(f){
+  var n=f==="All"?mine().length:mine().filter(function(t){return t.status===f}).length;
+  return '<button class="tab" data-f="'+f+'" aria-pressed="'+(f===filter)+'">'+f+" "+n+"</button>"}).join("");
+}
+function renderList(){
+ var q=$("q").value.trim().toLowerCase();
+ var list=mine().filter(function(t){return(filter==="All"||t.status===filter)&&(!q||(t.subject+t.name+t.id).toLowerCase().indexOf(q)>-1)})
+  .sort(function(a,b){return b.created-a.created});
+ $("rows").innerHTML=list.length?list.map(function(t){
+  return '<button class="row" data-id="'+t.id+'" aria-current="'+(t.id===sel)+'"><b>'+esc(t.subject)+'</b><div class="meta"><span class="'+cls(t.status)+'">'+t.status+'</span><span>#'+t.id+'</span>'+(team==="all"?'<span>'+(t.team==="red"?"Code RED":"Code PIXEL")+'</span>':"")+'<span>'+esc(t.name)+'</span><span>'+ago(t.created)+'</span></div></button>'}).join("")
+  :'<div class="empty">No tickets match. Try another filter, or create a new ticket.</div>';
+}
+var IK="code-desk-inv-v1",SK="code-desk-staff-v1",inv=loadK(IK),staff=loadK(SK),view="tickets";
+function loadK(k){try{var s=localStorage.getItem(k);if(s)return JSON.parse(s)}catch(e){}return[]}
+function saveK(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function nid(){return Date.now()*1000+Math.floor(Math.random()*1000)}
+function inTeam(a){return a.filter(function(x){return team==="all"||x.team===team})}
+function deskName(k){return k==="red"?"Code RED":"Code PIXEL"}
+function fit(){document.documentElement.style.setProperty("--hh",document.querySelector("header").offsetHeight+"px")}
+function deskSel(){return team==="all"?'<label>Desk<select name="team"><option value="red">Code RED</option><option value="pixel">Code PIXEL</option></select></label>':'<input type="hidden" name="team" value="'+team+'">'}
+function assignHtml(t){var s=staff.filter(function(x){return x.team===t.team});return'<label>Assignee<select id="as"><option value="">Unassigned</option>'+s.map(function(x){return'<option value="'+x.id+'"'+(x.id===t.assignee?" selected":"")+'>'+esc(x.name)+(x.status==="Away"?" (away)":"")+'</option>'}).join("")+'</select></label>'}
+function money(n){return"$"+(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+function due(s){return s.ptype==="Salary"?(s.rate||0):(s.rate||0)*(s.hours||0)}
+function renderPanel(){
+ var h="",all=team==="all",dh=all?"<th>Desk</th>":"",ds=function(k){return all?"<td>"+deskName(k)+"</td>":""};
+ if(view==="inventory"){
+  var it=inTeam(inv),low=it.filter(function(i){return i.qty<=i.min}).length;
+  h='<h1>Inventory</h1><p class="muted">'+it.length+' items'+(low?', '+low+' low or out of stock':'')+'</p><form class="add" id="invForm"><label>Item<input name="name" required maxlength="60"></label><label>SKU<input name="sku" maxlength="30"></label><label>In stock<input name="qty" type="number" min="0" value="0" required></label><label>Reorder at<input name="min" type="number" min="0" value="0" required></label><label>Price ($)<input name="price" type="number" min="0" step="0.01" value="0"></label><label>Location<input name="loc" maxlength="40"></label>'+deskSel()+'<button class="btn">Add item</button></form>';
+  h+=it.length?'<div class="tbl"><table><thead><tr><th>Item</th><th>SKU</th><th>Location</th>'+dh+'<th>Price</th><th>Stock</th><th></th></tr></thead><tbody>'+it.map(function(i){
+   var b=i.qty===0?' <span class="badge s-open">Out</span>':i.qty<=i.min?' <span class="badge s-pending">Low</span>':'';
+   return'<tr><td>'+esc(i.name)+'</td><td>'+esc(i.sku||"–")+'</td><td>'+esc(i.loc||"–")+'</td>'+ds(i.team)+'<td>'+money(i.price)+'</td><td><button class="mini" data-a="dec" data-id="'+i.id+'" aria-label="Remove one">−</button> <b>'+i.qty+'</b> <button class="mini" data-a="inc" data-id="'+i.id+'" aria-label="Add one">+</button>'+b+'</td><td><button class="mini" data-a="del" data-id="'+i.id+'">Remove</button></td></tr>'}).join("")+'</tbody></table></div>':'<div class="empty">No items yet. Add your first item above.</div>';
+ }else if(view==="staff"){
+  var st=inTeam(staff);
+  h='<h1>Staff and pay</h1><p class="muted">'+st.length+' people, due '+money(st.reduce(function(a,s){return a+(s.paid?0:due(s))},0))+', paid '+money(st.reduce(function(a,s){return a+(s.paid?due(s):0)},0))+' <button class="mini" data-a="period">Start new pay period</button></p><form class="add" id="stForm"><label>Name<input name="name" required maxlength="60"></label><label>Role<input name="role" maxlength="40"></label><label>Email<input name="email" type="email"></label><label>Status<select name="status"><option>Active</option><option>Away</option></select></label><label>Pay type<select name="ptype"><option>Hourly</option><option>Salary</option></select></label><label title="Per hour for Hourly, per pay period for Salary">Rate ($)<input name="rate" type="number" min="0" step="0.01" value="0" required></label>'+deskSel()+'<button class="btn">Add staff member</button></form>';
+  h+=st.length?'<div class="tbl"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th>'+dh+'<th>Status</th><th>Open tickets</th><th>Pay</th><th>Hours</th><th>Due</th><th>Payment</th><th></th></tr></thead><tbody>'+st.map(function(s){
+   var n=tickets.filter(function(t){return t.assignee===s.id&&t.status!=="Solved"}).length;
+   return'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.role||"–")+'</td><td>'+esc(s.email||"–")+'</td>'+ds(s.team)+'<td><select data-a="status" data-id="'+s.id+'" aria-label="Status for '+esc(s.name)+'"><option'+(s.status==="Active"?" selected":"")+'>Active</option><option'+(s.status==="Away"?" selected":"")+'>Away</option></select></td><td>'+n+'</td><td>'+(s.ptype||"Hourly")+' '+money(s.rate)+'</td><td>'+(s.ptype==="Salary"?"–":'<input class="hrs" type="number" min="0" step="0.25" value="'+(s.hours||0)+'" data-a="hours" data-id="'+s.id+'" aria-label="Hours for '+esc(s.name)+'">')+'</td><td>'+money(due(s))+'</td><td><button class="mini" data-a="paid" data-id="'+s.id+'">'+(s.paid?"Paid · Undo":"Mark paid")+'</button></td><td><button class="mini" data-a="del" data-id="'+s.id+'">Remove</button></td></tr>'}).join("")+'</tbody></table></div>':'<div class="empty">No staff yet. Add your first team member above.</div>';
+ }else if(view==="pos"){h=posView()}else if(view==="customers"){h=custView()}
+ $("panel").innerHTML=h;
+}
+$("views").addEventListener("click",function(e){var v=e.target.getAttribute("data-v");if(v)location.hash=team+(v==="tickets"?"":"-"+v)});
+$("panel").addEventListener("submit",function(e){e.preventDefault();if(e.target.id==="cuForm")return;var f=new FormData(e.target),g=function(k){return String(f.get(k)||"").trim()};
+ if(e.target.id==="invForm"){inv.push({id:nid(),team:g("team"),name:g("name"),sku:g("sku"),qty:Math.max(0,parseInt(g("qty"),10)||0),min:Math.max(0,parseInt(g("min"),10)||0),loc:g("loc"),price:Math.max(0,parseFloat(g("price"))||0)});saveK(IK,inv)}
+ else if(e.target.id==="stForm"){staff.push({id:nid(),team:g("team"),name:g("name"),role:g("role"),email:g("email"),status:g("status"),ptype:g("ptype")||"Hourly",rate:Math.max(0,parseFloat(g("rate"))||0),hours:0,paid:false});saveK(SK,staff)}
+ renderPanel()});
+$("panel").addEventListener("click",function(e){var b=e.target.closest("[data-a]");if(!b)return;var id=+b.getAttribute("data-id"),a=b.getAttribute("data-a");
+ if(a==="del"){if(b.getAttribute("data-armed")!=="1"){b.setAttribute("data-armed","1");b.textContent="Confirm";return}
+  if(view==="inventory"){inv=inv.filter(function(x){return x.id!==id});saveK(IK,inv)}
+  else{staff=staff.filter(function(x){return x.id!==id});tickets.forEach(function(t){if(t.assignee===id)t.assignee=null});saveK(SK,staff);save()}
+  renderPanel();return}
+ if(a==="period"){if(b.getAttribute("data-armed")!=="1"){b.setAttribute("data-armed","1");b.textContent="Confirm: reset hours and payments";return}inTeam(staff).forEach(function(s){s.hours=0;s.paid=false});saveK(SK,staff);renderPanel();return}
+ if(a==="paid"){var ps=staff.filter(function(x){return x.id===id})[0];if(ps){ps.paid=!ps.paid;saveK(SK,staff);renderPanel()}return}
+ var it=inv.filter(function(x){return x.id===id})[0];
+ if(it&&(a==="inc"||a==="dec")){it.qty=Math.max(0,it.qty+(a==="inc"?1:-1));saveK(IK,inv);renderPanel()}});
+$("panel").addEventListener("change",function(e){if(e.target.getAttribute("data-a")==="hours"){var hid=+e.target.getAttribute("data-id"),hs=staff.filter(function(x){return x.id===hid})[0];if(hs){hs.hours=Math.max(0,parseFloat(e.target.value)||0);hs.paid=false;saveK(SK,staff);renderPanel()}return}if(e.target.getAttribute("data-a")==="status"){var id=+e.target.getAttribute("data-id"),s=staff.filter(function(x){return x.id===id})[0];if(s){s.status=e.target.value;saveK(SK,staff)}}});
+function tots(t){var s=(t.items||[]).reduce(function(a,i){return a+i.qty*i.price},0),x=t.gst?Math.round(s*15)/100:0;s=Math.round(s*100)/100;return{sub:s,tax:x,tot:Math.round((s+x)*100)/100}}
+function posHtml(t){var its=t.items||[],paid=!!t.pay,T=tots(t),h='<div class="pos"><div class="who">Charges '+(paid?'<span class="badge s-solved">Paid</span>':its.length?'<span class="badge s-open">Unpaid</span>':'')+'</div>';
+ h+=its.length?'<table><tbody>'+its.map(function(i,n){return'<tr><td>'+esc(i.name)+'</td><td>'+i.qty+' × '+money(i.price)+'</td><td>'+money(i.qty*i.price)+'</td><td>'+(paid?'':'<button class="mini" data-p="rm" data-n="'+n+'" aria-label="Remove '+esc(i.name)+'">Remove</button>')+'</td></tr>'}).join('')+'</tbody></table>':'<p class="muted">Nothing charged yet.</p>';
+ if(!paid){var si=inv.filter(function(x){return x.team===t.team&&x.qty>0});
+  h+='<div class="prow"><select id="pinv" aria-label="Inventory item"><option value="">Add from inventory</option>'+si.map(function(x){return'<option value="'+x.id+'">'+esc(x.name)+' ('+x.qty+' in stock, '+money(x.price)+')</option>'}).join('')+'</select><input id="pqty" type="number" min="1" value="1" aria-label="Quantity"><button class="mini" data-p="addinv">Add</button></div><div class="prow"><input id="cname" placeholder="Custom charge, e.g. Call-out fee" aria-label="Charge name"><input id="cprice" type="number" min="0" step="0.01" placeholder="Price" aria-label="Price"><input id="cqty" type="number" min="1" value="1" aria-label="Quantity"><button class="mini" data-p="addcus">Add</button></div>'}
+ h+='<div class="tot"><span>Subtotal '+money(T.sub)+'</span><label><input type="checkbox" id="gst"'+(t.gst?' checked':'')+(paid?' disabled':'')+'> GST 15% '+money(T.tax)+'</label><b>Total '+money(T.tot)+'</b></div>';
+ if(paid)h+='<p class="muted">Paid by '+t.pay.method+' on '+new Date(t.pay.at).toLocaleString()+(t.pay.method==="Cash"?'. Tendered '+money(t.pay.tendered)+', change '+money(t.pay.change):'')+'. <button class="mini" data-p="undo">Undo payment</button></p>';
+ else if(its.length)h+='<div class="prow"><select id="pm" aria-label="Payment method"><option>Card</option><option>Cash</option><option>Bank transfer</option></select><input id="ptend" type="number" min="0" step="0.01" placeholder="Cash tendered (at least the total)" aria-label="Cash tendered"><button class="btn" data-p="pay">Take payment '+money(T.tot)+'</button></div>';
+ return h+'</div>'}
+$("detail").addEventListener("click",function(e){var b=e.target.closest("[data-p]");if(!b)return;var t=tickets.filter(function(x){return x.id===sel})[0];if(!t)return;var a=b.getAttribute("data-p");t.items=t.items||[];
+ if(a==="addinv"){var it=inv.filter(function(x){return x.id===+$("pinv").value})[0],q=Math.max(1,parseInt($("pqty").value,10)||1);if(!it)return;q=Math.min(q,it.qty);it.qty-=q;t.items.push({name:it.name,qty:q,price:it.price||0,inv:it.id});saveK(IK,inv)}
+ else if(a==="addcus"){var nm=$("cname").value.trim();if(!nm)return;t.items.push({name:nm,qty:Math.max(1,parseInt($("cqty").value,10)||1),price:Math.max(0,parseFloat($("cprice").value)||0),inv:null})}
+ else if(a==="rm"){var r=t.items.splice(+b.getAttribute("data-n"),1)[0];if(r&&r.inv){var s=inv.filter(function(x){return x.id===r.inv})[0];if(s){s.qty+=r.qty;saveK(IK,inv)}}}
+ else if(a==="pay"){var T=tots(t),m=$("pm").value,td=parseFloat($("ptend").value);if(m==="Cash"){if(!(td>=T.tot)){$("ptend").setAttribute("aria-invalid","true");$("ptend").focus();return}}else td=T.tot;t.pay={method:m,total:T.tot,tendered:td,change:Math.round((td-T.tot)*100)/100,at:Date.now()}}
+ else if(a==="undo"){if(b.getAttribute("data-armed")!=="1"){b.setAttribute("data-armed","1");b.textContent="Confirm undo";return}t.pay=null}
+ save();render()});
+$("detail").addEventListener("change",function(e){if(e.target.id==="gst"){var t=tickets.filter(function(x){return x.id===sel})[0];if(t&&!t.pay){t.gst=e.target.checked;save();render()}}});
+var PK="code-desk-sales-v1",AK="code-desk-auth-v1",sales=loadK(PK),cart=[],cartGst=false,cartTk="",cartPm="Card",cartTeam="",lastSale=null;
+function inCart(id){return cart.filter(function(c){return c.inv===id}).reduce(function(a,c){return a+c.qty},0)}
+function posView(){
+ var all=team==="all",sl=inTeam(sales).slice().sort(function(a,b){return b.at-a.at}),td0=new Date().toDateString(),
+  tt=sl.filter(function(s){return new Date(s.at).toDateString()===td0}).reduce(function(a,s){return a+s.tot},0),
+  h='<h1>POS</h1><p class="muted">Sales today '+money(tt)+', '+sl.length+' sales in total</p>';
+ if(lastSale&&lastSale.team===team)h+='<div class="done" role="status">Sale complete: '+money(lastSale.tot)+' paid by '+lastSale.method+(lastSale.method==="Cash"?', change '+money(lastSale.change):'')+'</div>';
+ if(all){h+='<div class="empty">Choose Code RED or Code PIXEL to make a sale. Sales from both desks are listed below.</div>'}
+ else{
+  var items=inv.filter(function(i){return i.team===team}),T=tots({items:cart,gst:cartGst}),
+   tk=tickets.filter(function(t){return t.team===team}).map(function(t){return'<option value="'+t.id+'"'+(String(t.id)===cartTk?' selected':'')+'>#'+t.id+' '+esc(t.subject)+'</option>'}).join('');
+  h+='<div class="till"><div><h2>Items</h2><div class="grid">'+(items.length?items.map(function(i){var left=i.qty-inCart(i.id);return'<button class="prod" data-q="add" data-id="'+i.id+'"'+(left<1?' disabled':'')+'><b>'+esc(i.name)+'</b><span>'+money(i.price)+'</span><small>'+(left<1?'Out of stock':left+' left')+'</small></button>'}).join(''):'<div class="empty">No inventory yet. Add items in Inventory, or use a custom item below.</div>')+'</div>'+
+   '<div class="prow"><input id="xname" placeholder="Custom item" aria-label="Custom item name"><input id="xprice" type="number" min="0" step="0.01" placeholder="Price" aria-label="Custom item price"><button class="mini" data-q="custom">Add</button></div></div>'+
+   '<div class="cart"><h2>Sale</h2>'+(cart.length?cart.map(function(c,n){return'<div class="cl"><span>'+esc(c.name)+'</span><span><button class="mini" data-q="dec" data-n="'+n+'" aria-label="Less">−</button> '+c.qty+' <button class="mini" data-q="inc" data-n="'+n+'" aria-label="More">+</button></span><b>'+money(c.qty*c.price)+'</b></div>'}).join(''):'<p class="muted">Tap an item to start a sale.</p>')+
+   '<div class="tot"><span>Subtotal '+money(T.sub)+'</span><label><input type="checkbox" id="pgst"'+(cartGst?' checked':'')+'> GST 15% '+money(T.tax)+'</label><b>Total '+money(T.tot)+'</b></div>'+
+   '<div class="prow"><select id="ptk" aria-label="Link to ticket"><option value="">No ticket</option>'+tk+'</select></div>'+
+   '<div class="prow"><select id="pmeth" aria-label="Payment method">'+["Card","Cash","Bank transfer"].map(function(m){return'<option'+(m===cartPm?' selected':'')+'>'+m+'</option>'}).join('')+'</select><input id="ptend" type="number" min="0" step="0.01" placeholder="Cash tendered" aria-label="Cash tendered"></div>'+
+   '<div class="prow"><button class="btn" data-q="charge"'+(cart.length?'':' disabled')+'>Charge '+money(T.tot)+'</button><button class="mini" data-q="clear">Clear</button></div></div></div>';
+ }
+ h+='<h2>Sales</h2>'+(sl.length?'<div class="tbl"><table><thead><tr><th>When</th><th>Items</th><th>Ticket</th>'+(all?'<th>Desk</th>':'')+'<th>Paid by</th><th>Total</th></tr></thead><tbody>'+sl.slice(0,50).map(function(s){return'<tr><td>'+new Date(s.at).toLocaleString()+'</td><td>'+esc(s.items.map(function(i){return i.qty+' × '+i.name}).join(', '))+'</td><td>'+(s.ticket?'#'+s.ticket:'–')+'</td>'+(all?'<td>'+deskName(s.team)+'</td>':'')+'<td>'+s.method+'</td><td>'+money(s.tot)+'</td></tr>'}).join('')+'</tbody></table></div>':'<div class="empty">No sales yet.</div>');
+ return h}
+$("panel").addEventListener("click",function(e){var b=e.target.closest("[data-q]");if(!b)return;var a=b.getAttribute("data-q"),id=+b.getAttribute("data-id"),n=+b.getAttribute("data-n");lastSale=null;
+ if(a==="add"){var it=inv.filter(function(x){return x.id===id})[0];if(!it||it.qty-inCart(id)<1)return;var c=cart.filter(function(x){return x.inv===id})[0];if(c)c.qty++;else cart.push({name:it.name,qty:1,price:it.price||0,inv:id})}
+ else if(a==="custom"){var nm=$("xname").value.trim();if(!nm)return;cart.push({name:nm,qty:1,price:Math.max(0,parseFloat($("xprice").value)||0),inv:null})}
+ else if(a==="inc"){var c2=cart[n];if(!c2)return;if(c2.inv){var s=inv.filter(function(x){return x.id===c2.inv})[0];if(!s||s.qty-inCart(c2.inv)<1)return}c2.qty++}
+ else if(a==="dec"){var c3=cart[n];if(!c3)return;c3.qty--;if(c3.qty<1)cart.splice(n,1)}
+ else if(a==="clear"){cart=[];cartTk=""}
+ else if(a==="charge"){if(!cart.length)return;var T=tots({items:cart,gst:cartGst}),m=$("pmeth").value,td=parseFloat($("ptend").value);
+  if(m==="Cash"){if(!(td>=T.tot)){$("ptend").setAttribute("aria-invalid","true");$("ptend").focus();return}}else td=T.tot;
+  cart.forEach(function(c4){if(c4.inv){var s2=inv.filter(function(x){return x.id===c4.inv})[0];if(s2)s2.qty=Math.max(0,s2.qty-c4.qty)}});saveK(IK,inv);
+  lastSale={id:nid(),team:team,items:cart.map(function(c5){return{name:c5.name,qty:c5.qty,price:c5.price}}),sub:T.sub,tax:T.tax,tot:T.tot,method:m,tendered:td,change:Math.round((td-T.tot)*100)/100,at:Date.now(),ticket:cartTk?+cartTk:null};
+  sales.push(lastSale);saveK(PK,sales);cart=[];cartTk=""}
+ renderPanel()});
+$("panel").addEventListener("change",function(e){if(e.target.id==="pgst"){cartGst=e.target.checked;renderPanel()}else if(e.target.id==="ptk")cartTk=e.target.value;else if(e.target.id==="pmeth")cartPm=e.target.value});
+function sha(s){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)).then(function(d){return Array.prototype.map.call(new Uint8Array(d),function(x){return("0"+x.toString(16)).slice(-2)}).join("")})}
+function renderLoginOld(){var setup=!loadK(AK).user;
+ $("login").innerHTML='<form id="lform" class="lcard"><h1>'+(setup?'Create the owner account':'Sign in')+'</h1><p class="muted">'+(setup?'First time here. Choose a username and password for the desk.':'Code RED and Code PIXEL help desk')+'</p><label>Username<input name="u" required autocomplete="username"></label><label>Password<input name="p" type="password" required minlength="6" autocomplete="'+(setup?'new-password':'current-password')+'"></label>'+(setup?'<label>Confirm password<input name="c" type="password" required autocomplete="new-password"></label>':'')+'<div class="err" id="lerr" role="alert"></div><button class="btn">'+(setup?'Create account':'Sign in')+'</button></form>'}
+function enter(u){try{sessionStorage.setItem("code-desk-session",u)}catch(e){}document.body.classList.remove("locked");route()}
+$("login").addEventListener("submit",function(e){if(e.target.id!=="lform")return;e.preventDefault();var f=new FormData(e.target),u=String(f.get("u")).trim(),p=String(f.get("p")),a=loadK(AK),err=function(m){$("lerr").textContent=m};
+ if(!window.crypto||!crypto.subtle){err("Sign-in needs a secure (https) page.");return}
+ if(!a.user){if(p!==String(f.get("c"))){err("Passwords don’t match.");return}var salt=String(nid());sha(salt+p).then(function(h){saveK(AK,{user:u,salt:salt,hash:h});enter(u)})}
+ else{sha(a.salt+p).then(function(h){if(u.toLowerCase()===a.user.toLowerCase()&&h===a.hash)enter(u);else err("Wrong username or password.")})}});
+$("outBtn").onclick=function(){try{sessionStorage.removeItem("code-desk-session")}catch(e){}location.hash="";document.body.classList.add("locked");document.body.classList.remove("cust");me=null;$("who").textContent="";renderLogin()};
+var ADMIN_HASH="0468a7c151ba53eab55358c2edf1cf48279a0e93d72ca151a1023416f1388920",CK="code-desk-cust-v1",lrole="customer",lmode="in",pSel=null,pNew=false,me=null;
+function getSess(){try{var s=sessionStorage.getItem("code-desk-session");if(!s)return null;try{var o=JSON.parse(s);if(o&&o.role)return o}catch(e){}return{role:"admin",name:s}}catch(e){return null}}
+function enter2(s){try{sessionStorage.setItem("code-desk-session",JSON.stringify(s))}catch(e){}me=s;document.body.classList.remove("locked");document.body.classList.toggle("cust",s.role==="customer");$("who").textContent=s.name+(s.role==="admin"?" (admin)":"");if(s.role==="admin"){route()}else{pSel=null;pNew=false;renderPortal();fit()}}
+function renderLogin(){
+ var adminSetup=!loadK(AK).user,isA=lrole==="admin",up=!isA&&lmode==="up",setup=false;
+ $("login").innerHTML='<form id="lform2" class="lcard"><div class="seg" role="group" aria-label="Sign in as"><button type="button" class="vw" data-r="customer" aria-pressed="'+!isA+'">Customer</button><button type="button" class="vw" data-r="admin" aria-pressed="'+isA+'">Admin</button></div><h1>'+(setup?'Create the admin account':isA?'Admin sign-in':up?'Create a customer account':'Customer sign-in')+'</h1><p class="muted">'+(setup?'First time here. Choose the admin username and password. Only the admin can open the desk.':isA?'Staff only. Enter the admin password.':up?'Create an account to send requests and follow your tickets.':'Sign in to see your tickets and send a new request.')+'</p>'+(up?'<label>Your name<input name="n" required maxlength="60" autocomplete="name"></label>':'')+(isA?'':'<label>Email<input name="u" type="email" required autocomplete="email"></label>')+'<label>Password<input name="p" type="password" required minlength="6" autocomplete="'+(setup||up?'new-password':'current-password')+'"></label>'+(setup?'<label>Confirm password<input name="c" type="password" required autocomplete="new-password"></label>':'')+'<div class="err" id="lerr" role="alert"></div><button class="btn">'+(setup?'Create admin account':up?'Create account':'Sign in')+'</button>'+(!isA?'<button type="button" class="mini" data-m="'+(up?'in':'up')+'">'+(up?'I already have an account':'New customer? Create an account')+'</button>':'')+'</form>'}
+$("login").addEventListener("click",function(e){var r=e.target.getAttribute("data-r"),m=e.target.getAttribute("data-m");if(r){lrole=r;renderLogin()}else if(m){lmode=m;renderLogin()}});
+$("login").addEventListener("submit",function(e){if(e.target.id!=="lform2")return;e.preventDefault();var f=new FormData(e.target),u=String(f.get("u")).trim(),p=String(f.get("p")),err=function(m){$("lerr").textContent=m};
+ if(!window.crypto||!crypto.subtle){err("Sign-in needs a secure (https) page.");return}
+ if(lrole==="admin"){{sha("code-desk:"+p).then(function(h){if(h===ADMIN_HASH)enter2({role:"admin",name:"Admin"});else err("Wrong admin password.")});return}var a=loadK(AK);
+  if(!a.user){if(p!==String(f.get("c"))){err("Passwords don’t match.");return}var salt=String(nid());sha(salt+p).then(function(h){saveK(AK,{user:u,salt:salt,hash:h});enter2({role:"admin",name:u})})}
+  else sha(a.salt+p).then(function(h){if(u.toLowerCase()===a.user.toLowerCase()&&h===a.hash)enter2({role:"admin",name:a.user});else err("Wrong admin username or password.")})}
+ else{var cs=loadK(CK),em=u.toLowerCase();
+  if(lmode==="up"){if(cs.some(function(x){return x.email===em})){err("That email already has an account. Sign in instead.");return}var s2=String(nid());sha(s2+p).then(function(h){var nc={id:nid(),name:String(f.get("n")).trim(),email:em,salt:s2,hash:h};cs.push(nc);saveK(CK,cs);enter2({role:"customer",id:nc.id,name:nc.name,email:nc.email})})}
+  else{var c=cs.filter(function(x){return x.email===em})[0];if(!c){err("Wrong email or password.");return}sha(c.salt+p).then(function(h){if(h===c.hash)enter2({role:"customer",id:c.id,name:c.name,email:c.email});else err("Wrong email or password.")})}}});
+function myTickets(){return tickets.filter(function(t){return me&&t.custId===me.id}).sort(function(a,b){return b.created-a.created})}
+function renderPortal(){
+ var ts=myTickets(),t=ts.filter(function(x){return x.id===pSel})[0],h='<div class="phead"><h1>'+(t?'Request #'+t.id:'My requests')+'</h1>'+(t?'<button class="btn ghost" data-c="back">Back</button>':'<button class="btn" data-c="new">New request</button>')+'</div>';
+ if(pNew&&!t)h+='<form class="lcard" id="cform" style="width:auto;margin-top:14px"><label>Which team?<select name="team"><option value="red">Code RED</option><option value="pixel">Code PIXEL</option></select></label><label>Subject<input name="subject" required maxlength="120"></label><label>Category<select name="category"><option>Bug</option><option>Billing</option><option>Account</option><option>Question</option><option>Other</option></select></label><label>What do you need help with?<textarea name="body" required></textarea></label><div class="acts"><button type="button" class="btn ghost" data-c="cancel">Cancel</button><button class="btn">Send request</button></div></form>';
+ if(t)h+='<div class="card" style="margin-top:14px"><h1>'+esc(t.subject)+'</h1><div class="meta"><span class="'+cls(t.status)+'">'+t.status+'</span><span>'+deskName(t.team)+'</span><span>'+ago(t.created)+'</span></div>'+t.replies.map(function(r){return'<div class="msg'+(r.agent?' agent':'')+'"><div class="who">'+esc(r.who)+'<span>'+ago(r.t)+'</span></div><p>'+esc(r.text)+'</p></div>'}).join('')+'<div class="msg"><textarea id="creply" placeholder="Write a reply" aria-label="Reply"></textarea><div class="acts"><button class="btn" data-c="reply">Send reply</button></div></div></div>';
+ else if(!pNew)h+=ts.length?ts.map(function(x){return'<button class="tk" data-c="open" data-id="'+x.id+'"><b>'+esc(x.subject)+'</b><div class="meta"><span class="'+cls(x.status)+'">'+x.status+'</span><span>'+deskName(x.team)+'</span><span>'+ago(x.created)+'</span></div></button>'}).join(''):'<div class="empty">No requests yet. Choose New request to contact support.</div>';
+ $("portal").innerHTML=h}
+$("portal").addEventListener("click",function(e){var b=e.target.closest("[data-c]");if(!b||!me)return;var a=b.getAttribute("data-c");
+ if(a==="new"){pNew=true;pSel=null}else if(a==="cancel")pNew=false;else if(a==="back")pSel=null;else if(a==="open")pSel=+b.getAttribute("data-id");
+ else if(a==="reply"){var t=myTickets().filter(function(x){return x.id===pSel})[0],v=$("creply").value.trim();if(!t||!v)return;t.replies.push({who:me.name,agent:false,text:v,t:Date.now()});if(t.status==="Solved")t.status="Open";save()}
+ renderPortal()});
+$("portal").addEventListener("submit",function(e){e.preventDefault();if(!me||e.target.id!=="cform")return;var f=new FormData(e.target),id=tickets.reduce(function(m,t){return Math.max(m,t.id)},1000)+1;
+ tickets.push({id:id,team:f.get("team"),custId:me.id,category:f.get("category"),affects:"Just me",phone:"",ref:"",contact:"Email",steps:"",subject:String(f.get("subject")).trim(),name:me.name,email:me.email||"",priority:"Normal",status:"Open",created:Date.now(),replies:[{who:me.name,agent:false,text:String(f.get("body")).trim(),t:Date.now()}]});
+ save();pNew=false;pSel=id;renderPortal()});
+function custView(){
+ var cs=loadK(CK),h='<h1>Customers</h1><p class="muted">'+cs.length+' accounts</p><form class="add" id="cuForm"><label>Name<input name="name" required maxlength="60"></label><label>Email<input name="email" type="email" required></label><label>Password<input name="pw" type="text" required minlength="6" autocomplete="off"></label><button class="btn">Add customer</button></form><div id="cuErr" class="err" role="alert"></div>';
+ h+=cs.length?'<div class="tbl"><table><thead><tr><th>Name</th><th>Email</th><th>Tickets</th><th>Password</th><th></th></tr></thead><tbody>'+cs.map(function(c){var mt=tickets.filter(function(t){return t.custId===c.id}),op=mt.filter(function(t){return t.status!=="Solved"}).length;
+  return'<tr><td>'+esc(c.name)+'</td><td>'+esc(c.email)+'</td><td>'+mt.length+' ('+op+' open)</td><td><input class="hrs" id="pw'+c.id+'" type="text" placeholder="New password" aria-label="New password for '+esc(c.name)+'" style="width:140px"> <button class="mini" data-k="pw" data-id="'+c.id+'">Set password</button></td><td><button class="mini" data-k="del" data-id="'+c.id+'">Remove</button></td></tr>'}).join('')+'</tbody></table></div>':'<div class="empty">No customer accounts yet. Add one above, or customers can create their own on the sign-in page.</div>';
+ return h}
+$("panel").addEventListener("submit",function(e){if(e.target.id!=="cuForm")return;var f=new FormData(e.target),nm=String(f.get("name")).trim(),em=String(f.get("email")).trim().toLowerCase(),pw=String(f.get("pw")),cs=loadK(CK);
+ if(cs.some(function(x){return x.email===em})){$("cuErr").textContent="That email already has an account.";return}
+ var s=String(nid());sha(s+pw).then(function(h){cs.push({id:nid(),name:nm,email:em,salt:s,hash:h});saveK(CK,cs);renderPanel()})});
+$("panel").addEventListener("click",function(e){var b=e.target.closest("[data-k]");if(!b)return;var id=+b.getAttribute("data-id"),a=b.getAttribute("data-k"),cs=loadK(CK);
+ if(a==="del"){if(b.getAttribute("data-armed")!=="1"){b.setAttribute("data-armed","1");b.textContent="Confirm";return}cs=cs.filter(function(x){return x.id!==id});saveK(CK,cs);renderPanel()}
+ else if(a==="pw"){var inp=$("pw"+id),v=inp.value;if(v.length<6){inp.setAttribute("aria-invalid","true");inp.focus();return}var c=cs.filter(function(x){return x.id===id})[0];if(!c)return;var s=String(nid());sha(s+v).then(function(h){c.salt=s;c.hash=h;saveK(CK,cs);renderPanel()})}});
+function infoHtml(t){var p=[["Category",t.category],["Affects",t.affects],["Phone",t.phone],["Reference",t.ref],["Contact by",t.contact],["Desk",t.team==="red"?"Code RED":"Code PIXEL"]].filter(function(x){return x[1]});
+ var h='<dl class="info">'+p.map(function(x){return"<div><dt>"+x[0]+"</dt><dd>"+esc(x[1])+"</dd></div>"}).join("")+"</dl>";
+ if(t.steps)h+='<div class="msg"><div class="who">Steps to reproduce</div><p>'+esc(t.steps)+"</p></div>";return h}
+function renderDetail(){
+ var t=tickets.filter(function(x){return x.id===sel})[0];
+ if(!t){$("detail").innerHTML='<div class="empty">'+(mine().length?"Select a ticket to read it and reply.":"No tickets yet. Choose New ticket to create the first one.")+'</div>';return}
+ var opts=function(arr,v){return arr.map(function(o){return"<option"+(o===v?" selected":"")+">"+o+"</option>"}).join("")};
+ $("detail").innerHTML='<div class="card"><button class="btn ghost back" id="back">Back to tickets</button>'+
+  "<h1>"+esc(t.subject)+'</h1><div class="meta"><span class="'+cls(t.status)+'">'+t.status+"</span><span>#"+t.id+"</span><span>"+esc(t.name)+" · "+esc(t.email)+"</span></div>"+infoHtml(t)+
+  '<div class="ctl"><label>Status<select id="st">'+opts(["Open","Pending","Solved"],t.status)+"</select></label>"+
+  '<label>Priority<select id="pr">'+opts(["Low","Normal","High","Urgent"],t.priority)+"</select></label>"+assignHtml(t)+"</div>"+
+  t.replies.map(function(r){return'<div class="msg'+(r.agent?" agent":"")+'"><div class="who">'+esc(r.who)+"<span>"+ago(r.t)+"</span></div><p>"+esc(r.text)+"</p></div>"}).join("")+
+  '<div class="msg"><textarea id="reply" placeholder="Write a reply" aria-label="Reply"></textarea><div class="acts"><button class="btn" id="send">Send reply</button></div></div></div>';
+}
+function render(){renderTabs();renderList();renderDetail();$("main").classList.toggle("show",sel!==null&&window.innerWidth<=760)}
+
+$("tabs").addEventListener("click",function(e){var f=e.target.getAttribute("data-f");if(f){filter=f;render()}});
+$("q").addEventListener("input",renderList);
+$("rows").addEventListener("click",function(e){var r=e.target.closest(".row");if(r){sel=+r.getAttribute("data-id");render()}});
+$("detail").addEventListener("click",function(e){
+ var t=tickets.filter(function(x){return x.id===sel})[0];
+ if(e.target.id==="back"){sel=null;render()}
+ if(e.target.id==="send"&&t){var v=$("reply").value.trim();if(!v)return;
+  t.replies.push({who:"Support",agent:true,text:v,t:Date.now()});if(t.status==="Open")t.status="Pending";save();render()}
+});
+$("detail").addEventListener("change",function(e){
+ var t=tickets.filter(function(x){return x.id===sel})[0];if(!t)return;
+ if(e.target.id==="st")t.status=e.target.value;if(e.target.id==="pr")t.priority=e.target.value;if(e.target.id==="as")t.assignee=e.target.value?+e.target.value:null;save();render()});
+function applyTeam(){document.documentElement.setAttribute("data-team",team);document.title=({red:"CODE RED",pixel:"CODE PIXEL",all:"All desks"}[team])+" – Support tickets";[].forEach.call(document.querySelectorAll(".team"),function(b){b.setAttribute("aria-pressed",b.getAttribute("data-t")===team)})}
+$("teams").addEventListener("click",function(e){var t=e.target.getAttribute("data-t");if(t)location.hash=t+(view==="tickets"?"":"-"+view);});
+function route(){if(me&&me.role==="customer")return;var h=location.hash.slice(1).split("-"),t0=h[0],home=t0!=="red"&&t0!=="pixel"&&t0!=="all";document.body.classList.toggle("home",home);if(home){document.body.classList.remove("v-inventory","v-staff");document.title="Help desk";fit();return}team=t0;view=["inventory","staff","pos","customers"].indexOf(h[1])>-1?h[1]:"tickets";document.body.classList.toggle("v-inventory",view==="inventory");document.body.classList.toggle("v-staff",view==="staff"||view==="pos"||view==="customers");[].forEach.call(document.querySelectorAll(".vw"),function(b){b.setAttribute("aria-pressed",b.getAttribute("data-v")===view)});filter="All";var m=mine();sel=window.innerWidth<=760||!m.length?null:m[0].id;if(cartTeam!==team){cart=[];cartTk="";cartTeam=team}lastSale=null;applyTeam();render();renderPanel();fit()}
+window.addEventListener("hashchange",route);
+$("homeBtn").onclick=function(){location.hash="home"};
+$("home").addEventListener("click",function(e){var t=e.target.getAttribute("data-t");if(t)location.hash=t});
+$("newBtn").onclick=function(){$("form").reset();$("deskLbl").hidden=team!=="all";if(team!=="all")$("deskSel").value=team;$("dlg").showModal()};
+$("cancel").onclick=function(){$("dlg").close()};
+$("form").addEventListener("submit",function(e){
+ var f=new FormData($("form")),id=tickets.reduce(function(m,t){return Math.max(m,t.id)},1000)+1;
+ tickets.push({id:id,team:f.get("team"),category:f.get("category"),affects:f.get("affects"),phone:f.get("phone"),ref:f.get("ref"),contact:f.get("contact"),steps:f.get("steps"),subject:f.get("subject"),name:f.get("name"),email:f.get("email"),priority:f.get("priority"),status:"Open",created:Date.now(),
+  replies:[{who:f.get("name"),agent:false,text:f.get("body"),t:Date.now()}]});
+ sel=id;filter="All";save();render()});
+window.addEventListener("resize",function(){fit();$("main").classList.toggle("show",sel!==null&&window.innerWidth<=760)});
+var who=null;try{who=sessionStorage.getItem("code-desk-session")}catch(e){}
+var sess=getSess();if(sess)enter2(sess);else{document.body.classList.add("locked");renderLogin()}
+if(window.innerWidth<=760)sel=null;
+render();
+})();
+</script>
+</body>
+</html>
